@@ -68,16 +68,16 @@ public class LoanCaculator {
 
     public static class PaymentElement {
         private final SimpleStringProperty paymentinitial;
-        private final SimpleStringProperty ad_Payment;
+        private final SimpleStringProperty ad_payment;
         private final SimpleStringProperty interest;
         private final SimpleStringProperty principle;
         private final SimpleStringProperty balance;
         private final SimpleStringProperty date;
         private final SimpleStringProperty payment;
 
-        public PaymentElement(String paymentinitial, String ad_Payment, String interest, String principle, String balance, String date, String payment) {
+        public PaymentElement(String paymentinitial, String ad_payment, String interest, String principle, String balance, String date, String payment) {
             this.paymentinitial = new SimpleStringProperty(paymentinitial);
-            this.ad_Payment = new SimpleStringProperty(ad_Payment);
+            this.ad_payment = new SimpleStringProperty(ad_payment);
             this.interest = new SimpleStringProperty(interest);
             this.principle = new SimpleStringProperty(principle);
             this.balance = new SimpleStringProperty(balance);
@@ -95,11 +95,11 @@ public class LoanCaculator {
         }
 
         public String GetAd_Payment() {
-            return this.ad_Payment.get();
+            return this.ad_payment.get();
         }
 
-        public void SetAd_Payment(String ad_Payment) {
-            this.ad_Payment.set(ad_Payment);
+        public void SetAd_Payment(String ad_payment) {
+            this.ad_payment.set(ad_payment);
         }
 
         public String GetInterest() {
