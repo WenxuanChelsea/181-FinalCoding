@@ -1,5 +1,6 @@
 package app.controller;
 
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.beans.property.SimpleStringProperty;
@@ -7,18 +8,37 @@ import org.apache.poi.ss.formula.functions.FinanceLib;
 import java.time.LocalDate;
 
 public class LoanCaculator {
-	private final ObservableList<PaymentList> item = FXCollections.observableArrayList();
+	private final ObservableList<PaymentElement> element = FXCollections.observableArrayList();
+   
+    
+    public static double Roundingdecimal(double number) {
+        return ((double)Math.round(number*100))/100;
+    }
+    
     private double totalpayment;
     private double totalinterest;
     
-    
-    public static double Roundingdecimal(double value) {
-        return ((double)Math.round(value*100))/100;
+    public double GetTotalPayment() {
+        totalpayment=0;
+        for(int i=0;i<element.size();i++){
+            totalpayment+=Double.parseDouble(element.get(i).GetPayment());
+        }
+        totalpayment=Roundingdecimal(totalpayment);
+        return totalpayment;
     }
-    
-    public ObservableList<PaymentList> CalculatePayment(double loanAmount, double interestRate, double numberOfYears, double additionalPayment, LocalDate date){
+
+    public double GetTotalInterest() {
+        totalinterest=0;
+        for(int i=0;i<element.size();i++){
+            totalinterest+=Double.parseDouble(element.get(i).GetInterest());
+        }
+        totalinterest=Roundingdecimal(totalinterest);
+        return totalinterest;
+    }
+
+    public ObservableList<PaymentElement> CalculatePayment(double loanAmount, double interestRate, double numberOfYears, double additionalPayment, LocalDate date){
         double balance=Roundingdecimal(loanAmount-additionalPayment);
-        item.add(new PaymentList(null,null,null,null,null,null,String.format("%.2f",balance)));
+        element.add(new PaymentElement(null,null,null,null,null,null,String.format("%.2f",balance)));
         double PMT = Roundingdecimal(Math.abs(FinanceLib.pmt(interestRate/12.00, numberOfYears*12.00, loanAmount, 0, false)));
 
         int paymentinitial=0;
@@ -28,86 +48,44 @@ public class LoanCaculator {
             double principal;
             double payment;
             if(Roundingdecimal(PMT-(interest+balance))>=lowestbalance){
-                principal=balance;
                 payment=Roundingdecimal(interest+balance);
+                principal=balance;
                 balance=0;
             }else{
+            	payment=PMT;
                 principal=Roundingdecimal(PMT-interest);
-                payment=PMT;
                 balance=Roundingdecimal(balance-principal);
             }
             paymentinitial++;
-            item.add(
-                    new PaymentList(Integer.toString(paymentinitial),date.toString(),String.format("%.2f",payment),null,String.format("%.2f",interest),String.format("%.2f",principal),String.format("%.2f",balance)));
+            element.add(
+                    new PaymentElement(Integer.toString(paymentinitial),date.toString(),String.format("%.2f",payment),null,String.format("%.2f",interest),String.format("%.2f",principal),String.format("%.2f",balance)));
             date=date.plusMonths(1);
         }
-        return item;
+        return element;
     }
     
     
 
-    public static class PaymentList {
+    public static class PaymentElement {
         private final SimpleStringProperty paymentinitial;
-        private final SimpleStringProperty date;
-        private final SimpleStringProperty payment;
-        private final SimpleStringProperty additionalPayment;
+        private final SimpleStringProperty ad_Payment;
         private final SimpleStringProperty interest;
         private final SimpleStringProperty principle;
         private final SimpleStringProperty balance;
-
-        public PaymentList(String paymentinitial, String date, String payment, String additionalPayment, String interest, String principle, String balance) {
-            this.paymentinitial = new SimpleStringProperty(paymentinitial);
-            this.date = new SimpleStringProperty(date);
-            this.payment = new SimpleStringProperty(payment);
-            this.additionalPayment = new SimpleStringProperty(additionalPayment);
-            this.interest = new SimpleStringProperty(interest);
-            this.principle = new SimpleStringProperty(principle);
-            this.balance = new SimpleStringProperty(balance);
-        }
-
-    public double GetTotalPayment() {
-        totalpayment=0;
-        for(int i=0;i<item.size();i++){
-            totalpayment+=Double.parseDouble(item.get(i).GetPayment());
-        }
-        totalpayment=Roundingdecimal(totalpayment);
-        return totalpayment;
-    }
-
-    public double GetTotalInterest() {
-        totalinterest=0;
-        for(int i=0;i<item.size();i++){
-            totalinterest+=Double.parseDouble(item.get(i).GetInterest());
-        }
-        totalinterest=Roundingdecimal(totalinterest);
-        return totalinterest;
-    }
-
-  
-
-    public static double Roundingdecimal(double value) {
-        return ((double)Math.round(value*100))/100;
-    }
-
-    public static class PaymentList {
-        private final SimpleStringProperty paymentinitial;
         private final SimpleStringProperty date;
         private final SimpleStringProperty payment;
-        private final SimpleStringProperty additionalPayment;
-        private final SimpleStringProperty interest;
-        private final SimpleStringProperty principle;
-        private final SimpleStringProperty balance;
 
-        public PaymentList(String paymentinitial, String date, String payment, String additionalPayment, String interest, String principle, String balance) {
+        public PaymentElement(String paymentinitial, String ad_Payment, String interest, String principle, String balance, String date, String payment) {
             this.paymentinitial = new SimpleStringProperty(paymentinitial);
-            this.date = new SimpleStringProperty(date);
-            this.payment = new SimpleStringProperty(payment);
-            this.additionalPayment = new SimpleStringProperty(additionalPayment);
+            this.ad_Payment = new SimpleStringProperty(ad_Payment);
             this.interest = new SimpleStringProperty(interest);
             this.principle = new SimpleStringProperty(principle);
             this.balance = new SimpleStringProperty(balance);
+            this.date = new SimpleStringProperty(date);
+            this.payment = new SimpleStringProperty(payment);
         }
 
+   
         public String Getpaymentinitial() {
             return this.paymentinitial.get();
         }
@@ -116,28 +94,12 @@ public class LoanCaculator {
             this.paymentinitial.set(paymentinitial);
         }
 
-        public String GetDate() {
-            return this.date.get();
+        public String GetAd_Payment() {
+            return this.ad_Payment.get();
         }
 
-        public void SetDate(String date) {
-            this.date.set(date);
-        }
-
-        public String GetPayment() {
-            return this.payment.get();
-        }
-
-        public void SetPayment(String payment) {
-            this.payment.set(payment);
-        }
-
-        public String GetAdditionalPayment() {
-            return this.additionalPayment.get();
-        }
-
-        public void SetAdditionalPayment(String additionalPayment) {
-            this.additionalPayment.set(additionalPayment);
+        public void SetAd_Payment(String ad_Payment) {
+            this.ad_Payment.set(ad_Payment);
         }
 
         public String GetInterest() {
@@ -163,6 +125,20 @@ public class LoanCaculator {
         public void SetBalance(String balance) {
             this.balance.set(balance);
         }
+        public String GetDate() {
+            return this.date.get();
+        }
+
+        public void SetDate(String date) {
+            this.date.set(date);
+        }
+
+        public String GetPayment() {
+            return this.payment.get();
+        }
+
+        public void SetPayment(String payment) {
+            this.payment.set(payment);
+        }
     }
-}
 }
